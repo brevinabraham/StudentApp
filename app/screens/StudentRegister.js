@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, SafeAreaView, ImageBackground, TextInput, ScrollView, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, SafeAreaView, ImageBackground, TextInput, ScrollView, KeyboardAvoidingView, TouchableOpacity, Animated } from 'react-native';
 
 
 import colors from '../config/colors'
@@ -32,8 +32,70 @@ const Questions = [{
         keyboardtype: "visible-password"
     }]
 
-
 function StudentRegister({navigation}) {
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+    const translationYvalue = useRef(new Animated.Value(0)).current
+    const fadeout = useRef(new Animated.Value(100)).current
+
+    useEffect(() => {(currentQuestionIndex >0 ) &&(
+        Animated.timing(translationYvalue,{
+            toValue: 50,
+            useNativeDriver: true
+        })).start()
+    },[])
+
+    const handleNextQuestion = () => {
+        Animated.parallel([
+            Animated.timing(translationYvalue, {
+            toValue: 500,
+            duration: 125,
+            useNativeDriver: true,
+            }),
+            Animated.timing(fadeout, {
+            toValue: 0,
+            useNativeDriver: true,
+            })]
+        ).start(() => {
+            setCurrentQuestionIndex((prevIndex) => prevIndex == Questions.length ? Questions.length : prevIndex + 1 );
+            Animated.parallel([
+                Animated.timing(translationYvalue, {
+                toValue: '0',
+                duration: 125,
+                useNativeDriver: true,
+                }),
+                Animated.timing(fadeout, {
+                toValue: 100,
+                useNativeDriver: true,
+                })
+            ]).start()})
+    }
+
+    const handlePrevQuestion = () => {
+        Animated.parallel([
+            Animated.timing(translationYvalue, {
+            toValue: 500,
+            duration: 125,
+            useNativeDriver: true,
+            }),
+            Animated.timing(fadeout, {
+            toValue: 0,
+            useNativeDriver: true,
+            })]
+        ).start(() => {
+            setCurrentQuestionIndex((prevIndex) => prevIndex == 0 ? 0 : prevIndex- 1);
+            Animated.parallel([
+                Animated.timing(translationYvalue, {
+                toValue: '0',
+                duration: 125,
+                useNativeDriver: true,
+                }),
+                Animated.timing(fadeout, {
+                toValue: 100,
+                useNativeDriver: true,
+                })
+            ]).start()})
+    }
+
     return (
         <SafeAreaView style={{flex: 1, alignContent: "center" }}>
             <KeyboardAvoidingView behavior='padding' style ={{flex: 1}}>
@@ -55,38 +117,61 @@ function StudentRegister({navigation}) {
                         Register and ask questions today!
                     </Text>
                 </View>
-                <View style = {[loginScreenCSS.LoginContainersEmptyColor
-                    ,{backgroundColor: colors.primarylightpurple, flex: 1, borderRadius:20, paddingTop: '4%'
-                    , paddingBottom: '4%', gap: '5%'}]}>
-                
-                    {Questions.map((question) => 
-                         <View key={question.id} style={[loginScreenCSS.LoginContainersEmptyColor 
-                        ,{backgroundColor:colors.white, flex: 1, borderRadius:20, paddingTop: '4%'
-                        , paddingBottom: '4%',alignItems: "flex-start", paddingLeft: "5%"}]}>
-                            <Text style = {{color: colors.black, flex: 1}}>
-                                {question.title}:
-                            </Text>
-                            <View style={[loginScreenCSS.LoginContainersEmptyColor 
-                                ,{backgroundColor:colors.primarylightpurple, flex: 1, borderRadius:20, paddingTop: '4%'
-                                , paddingBottom: '4%', alignItems: "center", alignContent: "center"
-                                , justifyContent: "center"}]}>
-                                <TextInput key={question.id} placeholder={question.question} 
-                                keyboardType={question.keyboardtype} placeholderTextColor={colors.white}/>
-                            </View>                
-                        </View>                
-                    )}
-                </View>
-                <View style={[loginScreenCSS.LoginContainersEmptyColor,{flex:1}]}>
-                    <TouchableOpacity onPress={() => navigation.navigate('LoginScreenWelcome')}
+                 <Animated.View
+                style={[
+                    loginScreenCSS.LoginContainersEmptyColor,
+                    {
+                        backgroundColor: colors.primarylightpurple,
+                        flex: 1,
+                        borderRadius: 20,
+                        paddingTop: '4%',
+                        paddingBottom: '4%',
+                        gap: '5%',
+                        transform: [
+                            {translateY: translationYvalue}
+                        ],
+                        opacity: fadeout
+                    },
+                    ]}
+                >
+                    {Questions.map((question, index) => (
+                    index === currentQuestionIndex && (
+                    <View key={question.id} style={[loginScreenCSS.LoginContainersEmptyColor
+                        , { backgroundColor: colors.white, flex: 1, borderRadius: 20, paddingTop: '4%'
+                            , paddingBottom: '4%', alignItems: "flex-start", paddingLeft: "5%" }]}>
+                        <Text style={{ color: colors.black, flex: 1 }}>
+                            {question.title}:
+                        </Text>
+                        <View style={[loginScreenCSS.LoginContainersEmptyColor
+                            , { backgroundColor: colors.primarylightpurple, flex: 1, borderRadius: 20, paddingTop: '4%'
+                            , paddingBottom: '4%', alignItems: "center", alignContent: "center"
+                            , justifyContent: "center" }]}>
+                            <TextInput key={question.id} placeholder={question.question}
+                            keyboardType={question.keyboardtype} placeholderTextColor={colors.white} />
+                        </View>
+                        </View>
+                    )
+                    ))}
+                </Animated.View>
+                <View style={[loginScreenCSS.LoginContainersEmptyColor,{flex:1, flexDirection: "row"}]}>
+                    <TouchableOpacity onPress={handlePrevQuestion}
                         style = {[loginScreenCSS.LoginContainersEmptyColor,
                         { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
                         , justifyContent: "center"}]}>
                         <Text style ={[loginScreenCSS.EmptyBackgroundText, 
-                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%'}]}> 
-                            Create Account
+                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
+                            {'<'}
                         </Text>      
                     </TouchableOpacity>
-                    
+                    <TouchableOpacity onPress={handleNextQuestion}
+                        style = {[loginScreenCSS.LoginContainersEmptyColor,
+                        { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
+                        , justifyContent: "center"}]}>
+                        <Text style ={[loginScreenCSS.EmptyBackgroundText, 
+                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
+                            {'>'}
+                        </Text>      
+                    </TouchableOpacity>
                 </View>
 
 
