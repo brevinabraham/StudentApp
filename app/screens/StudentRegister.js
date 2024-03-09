@@ -1,43 +1,28 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TextInput, ScrollView, KeyboardAvoidingView, TouchableOpacity, Animated } from 'react-native';
-
+import { enGB, registerTranslation, DatePickerInput } from 'react-native-paper-dates';
+import axios from 'axios';
 
 import colors from '../config/colors'
 import loginScreenCSS from '../config/loginscreencss';
 
-const Questions = [{
-        id: "name",
-        title: "Name",
-        question: "Enter first and last name",
-        keyboardtype: "ascii-capable"
-    },{
-        id: "phonenumber",
-        title: "Phone Number",
-        question: "Enter your phone number",
-        keyboardtype: "phone-pad"
-    },{
-        id: "email",
-        title: "Email address",
-        question: "Enter your email address",
-        keyboardtype: "email-address"
-    },{
-        id: "password",
-        title: "Password",
-        question: "Enter your password",
-        keyboardtype: "visible-password"
-    },{
-        id: "confirmPassword",
-        title: "Confirm Password",
-        question: "Enter your password",
-        keyboardtype: "visible-password"
-    }]
+registerTranslation('en-GB', enGB)
 
 function StudentRegister({navigation}) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const translationYvalue = useRef(new Animated.Value(0)).current
     const fadeout = useRef(new Animated.Value(100)).current
+    const [Questions, setQuestions] = useState([])
+    const [inputDate, setInputDate] = React.useState(new Date())
 
-    useEffect(() => {(currentQuestionIndex >0 ) &&(
+    useEffect(() => {
+        axios.get('http://13.60.38.111:8000/questions/')
+            .then(response => setQuestions(response.data))
+            .then(() => console.log(Questions))
+            .catch(err => console.error('Error fetching questions:',err))
+    },[setQuestions])
+
+    useEffect(() => {(currentQuestionIndex >0 ) && (
         Animated.timing(translationYvalue,{
             toValue: 50,
             useNativeDriver: true
@@ -136,7 +121,7 @@ function StudentRegister({navigation}) {
                 >
                     {Questions.map((question, index) => (
                     index === currentQuestionIndex && (
-                    <View key={question.id} style={[loginScreenCSS.LoginContainersEmptyColor
+                    <View key={question.var_id} style={[loginScreenCSS.LoginContainersEmptyColor
                         , { backgroundColor: colors.white, flex: 1, borderRadius: 20, paddingTop: '4%'
                             , paddingBottom: '4%', alignItems: "flex-start", paddingLeft: "5%" }]}>
                         <Text style={{ color: colors.black, flex: 1 }}>
@@ -146,8 +131,25 @@ function StudentRegister({navigation}) {
                             , { backgroundColor: colors.primarylightpurple, flex: 1, borderRadius: 20, paddingTop: '4%'
                             , paddingBottom: '4%', alignItems: "center", alignContent: "center"
                             , justifyContent: "center" }]}>
-                            <TextInput key={question.id} placeholder={question.question}
-                            keyboardType={question.keyboardtype} placeholderTextColor={colors.white} />
+                            {question.title.toLowerCase().includes("date") ? (
+                                <DatePickerInput
+                                    locale="en-GB"
+                                    mode = "single"
+                                    value={inputDate}
+                                    onChange={(d) => setInputDate(d)}
+                                    inputMode = "start"
+                                    presentationStyle = "pageSheet"
+                                    autoComplete={question.autocomplete} 
+                                    style = {{ backgroundColor: colors.primarylightpurple}}
+                                    />
+                            ) : (
+                                <TextInput 
+                                    key={question.var_id} 
+                                    placeholder={question.question}
+                                    keyboardType={question.keyboardtype} 
+                                    autoComplete={question.autocomplete} 
+                                    placeholderTextColor={colors.white} />
+                            )}
                         </View>
                         </View>
                     )

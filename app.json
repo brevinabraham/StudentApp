@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "StudentConnect",
-    "slug": "StudentConnect",
+    "slug": "studenthubconnected",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
@@ -15,16 +15,24 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.brevinabraham.studenthubconnected"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.brevinabraham.studenthubconnected"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4f6aa50e-48b2-49fb-bd18-68e1b5dc03c9"
+      }
+    },
+    "owner": "brevinabraham"
   }
 }
