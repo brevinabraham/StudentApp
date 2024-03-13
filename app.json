@@ -33,6 +33,12 @@
         "projectId": "4f6aa50e-48b2-49fb-bd18-68e1b5dc03c9"
       }
     },
-    "owner": "brevinabraham"
+    "owner": "brevinabraham",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4f6aa50e-48b2-49fb-bd18-68e1b5dc03c9"
+    }
   }
 }
