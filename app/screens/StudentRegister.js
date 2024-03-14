@@ -16,7 +16,7 @@ function StudentRegister({navigation}) {
     const [inputDate, setInputDate] = React.useState(new Date())
 
     useEffect(() => {
-        axios.get('http://127.0.0.1:8000/questions/')
+        axios.get('http://13.60.35.183:8000/questions/')
             .then(response => setQuestions(response.data))
             .then(() => console.log(Questions))
             .catch(err => console.error('Error fetching questions:',err))
