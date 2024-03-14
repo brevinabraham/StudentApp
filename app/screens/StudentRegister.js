@@ -19,7 +19,7 @@ function StudentRegister({navigation}) {
         axios.get('http://13.60.35.183:8000/questions/')
             .then(response => setQuestions(response.data))
             .then(() => console.log(Questions))
-            .catch(err => console.error('Error fetching questions:',err))
+            .catch(err => console.error('Error fetching questions:','http://13.60.35.183:8000/questions/', err))
     },[setQuestions])
 
     useEffect(() => {(currentQuestionIndex >0 ) && (
