@@ -28,7 +28,7 @@ function LoginScreen({prop,navigation}) {
                 </ImageBackground>            
             </View>
             <View style = {[loginscreencss.LoginContainersEmptyColor,
-                {flexDirection: "row", gap: '5%'}]}>
+                {flexDirection: "row"}]}>
                 <TouchableOpacity onPress={() => navigation.navigate('StudentRegister')}
                     style = {[loginscreencss.LoginContainersEmptyColor,
                     {flex:1, backgroundColor: colors.primarylightpurple}]}>

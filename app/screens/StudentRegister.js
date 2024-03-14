@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TextInput, ScrollView, KeyboardAvoidingView, TouchableOpacity, Animated } from 'react-native';
-import { enGB, registerTranslation, DatePickerInput } from 'react-native-paper-dates';
+import { enGB, registerTranslation, DatePickerInput, tr } from 'react-native-paper-dates';
 import axios from 'axios';
 
 import colors from '../config/colors'
@@ -84,7 +84,7 @@ function StudentRegister({navigation}) {
     return (
         <SafeAreaView style={{flex: 1, alignContent: "center" }}>
             <KeyboardAvoidingView behavior='padding' style ={{flex: 1}}>
-            <ScrollView contentContainerStyle = {{alignItems: "center", gap: '5%', flexGrow: 1}}>
+            <ScrollView contentContainerStyle = {{alignItems: "center", flexGrow: 1}}>
                 <View style={[loginScreenCSS.LoginContainersEmptyColor,{flex:8}]}>
                     <ImageBackground source={require('../assets/StudentRegister.jpg')}
                         style = {{
@@ -92,7 +92,7 @@ function StudentRegister({navigation}) {
                         , overflow: 'hidden', borderRadius: 55}}>
                     </ImageBackground>
                 </View>
-                <View style={[loginScreenCSS.LoginContainersEmptyColor, {flex: 1,gap: '5%'}]}>            
+                <View style={[loginScreenCSS.LoginContainersEmptyColor, {flex: 1}]}>            
                     <Text style ={[loginScreenCSS.EmptyBackgroundTextTitle,
                         {flex: 1, color: colors.primarylightpurple,fontSize: 40,margin: 0}]}> 
                         Register a Student
@@ -111,7 +111,6 @@ function StudentRegister({navigation}) {
                         borderRadius: 20,
                         paddingTop: '4%',
                         paddingBottom: '4%',
-                        gap: '5%',
                         transform: [
                             {translateY: translationYvalue}
                         ],
@@ -140,15 +139,21 @@ function StudentRegister({navigation}) {
                                     inputMode = "start"
                                     presentationStyle = "pageSheet"
                                     autoComplete={question.autocomplete} 
-                                    style = {{ backgroundColor: colors.primarylightpurple}}
+                                    style = {{ color: colors.white, height: '75%', borderRadius: 20}}
+                                    focusable = {true}
+                                    onFocus={() => currentQuestionIndex == index ? this.textInput.focus() : false}
                                     />
                             ) : (
+                                
                                 <TextInput 
                                     key={question.var_id} 
                                     placeholder={question.question}
                                     keyboardType={question.keyboardtype} 
                                     autoComplete={question.autocomplete} 
-                                    placeholderTextColor={colors.white} />
+                                    placeholderTextColor={colors.white} 
+                                    focusable = {true}
+                                    onFocus={() => currentQuestionIndex == index ? this.textInput.focus() : false}
+                                    />
                             )}
                         </View>
                         </View>
@@ -159,7 +164,9 @@ function StudentRegister({navigation}) {
                     <TouchableOpacity onPress={handlePrevQuestion}
                         style = {[loginScreenCSS.LoginContainersEmptyColor,
                         { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
-                        , justifyContent: "center"}]}>
+                        , justifyContent: "center"}]}
+                        focusable = {true}      
+                        >
                         <Text style ={[loginScreenCSS.EmptyBackgroundText, 
                         {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
                             {'<'}
@@ -168,7 +175,9 @@ function StudentRegister({navigation}) {
                     <TouchableOpacity onPress={handleNextQuestion}
                         style = {[loginScreenCSS.LoginContainersEmptyColor,
                         { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
-                        , justifyContent: "center"}]}>
+                        , justifyContent: "center"}]}
+                        focusable = {true}      
+                        >
                         <Text style ={[loginScreenCSS.EmptyBackgroundText, 
                         {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
                             {'>'}
