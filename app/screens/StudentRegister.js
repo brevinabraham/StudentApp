@@ -7,19 +7,19 @@ import colors from '../config/colors'
 import loginScreenCSS from '../config/loginscreencss';
 
 registerTranslation('en-GB', enGB)
-
-function StudentRegister({navigation}) {
+const url = 'http://127.0.0.1:8000/'
+function StudentRegister({prop,navigation}) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const translationYvalue = useRef(new Animated.Value(0)).current
     const fadeout = useRef(new Animated.Value(100)).current
     const [Questions, setQuestions] = useState([])
-    const [inputDate, setInputDate] = React.useState(new Date())
+    const [regUser, setRegUser] = useState({});
 
     useEffect(() => {
-        axios.get('http://13.60.35.183:8000/questions/')
+        axios.get(url + 'questions/')
             .then(response => setQuestions(response.data))
             .then(() => console.log(Questions))
-            .catch(err => console.error('Error fetching questions:','http://13.60.35.183:8000/questions/', err))
+            .catch(err => console.error('Error fetching questions:', err))
     },[setQuestions])
 
     useEffect(() => {(currentQuestionIndex >0 ) && (
@@ -41,7 +41,7 @@ function StudentRegister({navigation}) {
             useNativeDriver: true,
             })]
         ).start(() => {
-            setCurrentQuestionIndex((prevIndex) => prevIndex == Questions.length ? Questions.length : prevIndex + 1 );
+            setCurrentQuestionIndex((prevIndex) => prevIndex == Questions.length-1 ? Questions.length-1 : prevIndex + 1 );
             Animated.parallel([
                 Animated.timing(translationYvalue, {
                 toValue: '0',
@@ -80,6 +80,59 @@ function StudentRegister({navigation}) {
                 })
             ]).start()})
     }
+
+    function authenticateRegUserInputs () {
+        console.log("auth started")
+        console.log(regUser)
+        for (let item in regUser) {
+            console.log(item, regUser[item])
+        }
+        console.log("auth started")
+
+        return false
+    }
+
+    const postUser = async () => {
+        let authUserIn = authenticateRegUserInputs()
+        if (authUserIn == true) {
+            let authUser = false
+            let userRoles = []
+            let userID = ''
+            await axios.get(url+regUser["email"])
+                .then(response => {
+                    authUser = response.data["bool"]
+                    userRoles = response.data["userRole"]
+                    userID = response.data["userID"]
+                })
+            
+            if (authUser && !('Student' in userRoles)) {
+                await axios.put(url+userID,{
+                    ...regUser
+                    , "dob":regUser["dob"].toLocaleDateString()
+                    , "role": [...userRoles, "Student"]
+                    })
+                    .then(() => {
+                        console.log("user updated")
+                        navigation.navigate('LoginScreenWelcome')
+                    })
+                
+            } else if (!authUser){
+                await axios.post(url, {
+                        ...regUser
+                        , "dob":regUser["dob"].toLocaleDateString()
+                        , "role":['Student']})
+                    .then(response => {
+                        console.log(response.json)
+                        console.log("user added")
+                        navigation.navigate('LoginScreenWelcome')
+                    })
+                    .catch (err => console.log(err))
+            
+            }
+        }
+        
+    }
+    
 
     return (
         <SafeAreaView style={{flex: 1, alignContent: "center" }}>
@@ -132,33 +185,36 @@ function StudentRegister({navigation}) {
                             , justifyContent: "center" }]}>
                             {question.title.toLowerCase().includes("date") ? (
                                 <DatePickerInput
+                                    autoFocus
                                     locale="en-GB"
                                     mode = "single"
-                                    value={inputDate}
-                                    onChange={(d) => setInputDate(d)}
+                                    value={regUser[question.var_id] || ''}
+                                    onChange={(d) => setRegUser({...regUser, [question.var_id]: d})}
                                     inputMode = "start"
                                     presentationStyle = "pageSheet"
                                     autoComplete={question.autocomplete} 
-                                    style = {{ color: colors.white, height: '75%', borderRadius: 20}}
+                                    style = {{ color: colors.white, borderRadius: 20}}
                                     focusable = {true}
-                                    onFocus={() => currentQuestionIndex == index ? this.textInput.focus() : false}
                                     />
                             ) : (
                                 
                                 <TextInput 
+                                    autoFocus
                                     key={question.var_id} 
                                     placeholder={question.question}
+                                    value={regUser[question.var_id] || ''}
+                                    onChange={(d) => setRegUser({...regUser, [question.var_id]: d.target.value})}
                                     keyboardType={question.keyboardtype} 
                                     autoComplete={question.autocomplete} 
                                     placeholderTextColor={colors.white} 
                                     focusable = {true}
-                                    onFocus={() => currentQuestionIndex == index ? this.textInput.focus() : false}
                                     />
                             )}
                         </View>
                         </View>
                     )
                     ))}
+                    
                 </Animated.View>
                 <View style={[loginScreenCSS.LoginContainersEmptyColor,{flex:1, flexDirection: "row"}]}>
                     <TouchableOpacity onPress={handlePrevQuestion}
@@ -172,17 +228,33 @@ function StudentRegister({navigation}) {
                             {'<'}
                         </Text>      
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleNextQuestion}
-                        style = {[loginScreenCSS.LoginContainersEmptyColor,
-                        { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
-                        , justifyContent: "center"}]}
-                        focusable = {true}      
-                        >
-                        <Text style ={[loginScreenCSS.EmptyBackgroundText, 
-                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
-                            {'>'}
-                        </Text>      
-                    </TouchableOpacity>
+                    {currentQuestionIndex == Questions.length-1 ? 
+                            (
+                                <TouchableOpacity onPress={postUser}
+                                    style = {[loginScreenCSS.LoginContainersEmptyColor,
+                                    { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
+                                    , justifyContent: "center"}]}
+                                    focusable = {true}      
+                                    >
+                                    <Text style ={[loginScreenCSS.EmptyBackgroundText, 
+                                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
+                                        {'Submit'}
+                                    </Text> 
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity onPress={handleNextQuestion}
+                                    style = {[loginScreenCSS.LoginContainersEmptyColor,
+                                    { backgroundColor: colors.primarylightpurple, alignItems: "center", alignContent: "center"
+                                    , justifyContent: "center"}]}
+                                    focusable = {true}      
+                                    >
+                                    <Text style ={[loginScreenCSS.EmptyBackgroundText, 
+                                        {color: colors.white, paddingTop: '2%', paddingBottom: '2%', fontSize: 30}]}> 
+                                        {'>'}
+                                    </Text> 
+                                </TouchableOpacity>
+                            )}
+                             
                 </View>
 
 
