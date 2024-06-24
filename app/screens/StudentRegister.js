@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TextInput, ScrollView, KeyboardAvoidingView, TouchableOpacity, Animated } from 'react-native';
-import { enGB, registerTranslation, DatePickerInput, tr } from 'react-native-paper-dates';
+import { enGB, registerTranslation, DatePickerInput } from 'react-native-paper-dates';
 import axios from 'axios';
 
 import colors from '../config/colors'
 import loginScreenCSS from '../config/loginscreencss';
 
 registerTranslation('en-GB', enGB)
-const url = 'http://127.0.0.1:8000/'
+const BASE_URL = 'http://127.0.0.1:8000'
 function StudentRegister({prop,navigation}) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const translationYvalue = useRef(new Animated.Value(0)).current
@@ -16,9 +16,8 @@ function StudentRegister({prop,navigation}) {
     const [regUser, setRegUser] = useState({});
 
     useEffect(() => {
-        axios.get(url + 'questions/')
+        axios.get(`${BASE_URL}/questions/`)
             .then(response => setQuestions(response.data))
-            .then(() => console.log(Questions))
             .catch(err => console.error('Error fetching questions:', err))
     },[setQuestions])
 
@@ -89,47 +88,47 @@ function StudentRegister({prop,navigation}) {
         }
         console.log("auth started")
 
-        return false
+        return true
     }
 
     const postUser = async () => {
-        let authUserIn = authenticateRegUserInputs()
-        if (authUserIn == true) {
-            let authUser = false
-            let userRoles = []
-            let userID = ''
-            await axios.get(url+regUser["email"])
+        await axios.post(`${BASE_URL}/api/user`, {
+                ...regUser
+                , "dob":regUser["dob"].toLocaleDateString()
+                , "roles": ["Student"]})
                 .then(response => {
-                    authUser = response.data["bool"]
-                    userRoles = response.data["userRole"]
-                    userID = response.data["userID"]
+                    console.log(response.json)
+                    console.log("user added")
+                    navigation.replace('LoginScreenWelcome')
                 })
+                .catch (err => console.log(err))
+
+        // let authUserIn = authenticateRegUserInputs()
+        // let authUser = false
+        // let userRoles = []
+        // let userID = ''
+        // await axios.get(`${BASE_URL}/api/user/${regUser["email"]}`)
+        //     .then(response => {
+        //         authUser = response.data["bool"]
+        //         userRoles = response.data["userRole"]
+        //         userID = response.data["userID"]
+        //     })
+        
+        // if (authUser && !('Student' in userRoles)) {
+        //     await axios.put(`${BASE_URL}/api/user/${userID}`,{
+        //         ...regUser
+        //         , "dob":regUser["dob"].toLocaleDateString()
+        //         , "role": [...userRoles, "Student"]
+        //         })
+        //         .then(() => {
+        //             console.log("user updated")
+        //             navigation.navigate('LoginScreenWelcome')
+        //         })
             
-            if (authUser && !('Student' in userRoles)) {
-                await axios.put(url+userID,{
-                    ...regUser
-                    , "dob":regUser["dob"].toLocaleDateString()
-                    , "role": [...userRoles, "Student"]
-                    })
-                    .then(() => {
-                        console.log("user updated")
-                        navigation.navigate('LoginScreenWelcome')
-                    })
-                
-            } else if (!authUser){
-                await axios.post(url, {
-                        ...regUser
-                        , "dob":regUser["dob"].toLocaleDateString()
-                        , "role":['Student']})
-                    .then(response => {
-                        console.log(response.json)
-                        console.log("user added")
-                        navigation.navigate('LoginScreenWelcome')
-                    })
-                    .catch (err => console.log(err))
+        // } else if (!authUser){
             
-            }
-        }
+        
+        // }
         
     }
     
@@ -197,24 +196,23 @@ function StudentRegister({prop,navigation}) {
                                     focusable = {true}
                                     />
                             ) : (
-                                
                                 <TextInput 
                                     autoFocus
                                     key={question.var_id} 
                                     placeholder={question.question}
                                     value={regUser[question.var_id] || ''}
-                                    onChange={(d) => setRegUser({...regUser, [question.var_id]: d.target.value})}
+                                    onChangeText={(d) => setRegUser({...regUser, [question.var_id]: d})}
                                     keyboardType={question.keyboardtype} 
                                     autoComplete={question.autocomplete} 
                                     placeholderTextColor={colors.white} 
                                     focusable = {true}
+                                    secureTextEntry = {question.secure}
                                     />
                             )}
                         </View>
                         </View>
                     )
                     ))}
-                    
                 </Animated.View>
                 <View style={[loginScreenCSS.LoginContainersEmptyColor,{flex:1, flexDirection: "row"}]}>
                     <TouchableOpacity onPress={handlePrevQuestion}

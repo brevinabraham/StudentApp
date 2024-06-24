@@ -4,6 +4,7 @@ export default {
     primarylightpurple: '#A94CE0',
     white: 'white',//'#F8F7F4',
     black: 'black',
-    //green: '#4CAF50',
-    logingreen: '#2e7d32'
+    green: '#4CAF50',
+    logingreen: '#2e7d32',
+    grey: "grey"
 }

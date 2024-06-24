@@ -18,7 +18,18 @@ export default function App() {
             name='StudentRegister'
             component={screens.StudentRegister}
             options={{headerShown: false}}/>
-        </Stack.Navigator>
+          <Stack.Screen
+            name = 'Dashboard'
+            component = {screens.Dashboard}
+            options={{headerShown: false}}
+            // listeners={{
+            //   beforeRemove: (e) => {
+            //     e.preventDefault();
+            //     e.navigation.replace('Dashboard');
+            //   }
+            // }}
+            />
+          </Stack.Navigator>
       </NavigationContainer>
   );
 }
