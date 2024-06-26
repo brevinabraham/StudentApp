@@ -95,20 +95,11 @@ function StudentRegister({prop,navigation}) {
         await axios.post(`${BASE_URL}/api/user`, {
                 ...regUser
                 , "dob":regUser["dob"].toLocaleDateString()
-<<<<<<< HEAD
                 , "roles": ["1"]})
                 .then(response => {
                     console.log(response)
                     navigation.replace('LoginScreenWelcome')
                 })//need to encrypt this data to be sent to the backend
-=======
-                , "roles": ["Student"]})
-                .then(response => {
-                    console.log(response.json)
-                    console.log("user added")
-                    navigation.replace('LoginScreenWelcome')
-                })
->>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
                 .catch (err => console.log(err))
 
         // let authUserIn = authenticateRegUserInputs()
@@ -126,11 +117,7 @@ function StudentRegister({prop,navigation}) {
         //     await axios.put(`${BASE_URL}/api/user/${userID}`,{
         //         ...regUser
         //         , "dob":regUser["dob"].toLocaleDateString()
-<<<<<<< HEAD
         //         , "role": [...userRoles, "1"]
-=======
-        //         , "role": [...userRoles, "Student"]
->>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
         //         })
         //         .then(() => {
         //             console.log("user updated")
