@@ -1,6 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity,TextInput, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+<<<<<<< HEAD
 import { useCookies } from 'react-cookie';
+=======
+>>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
 
 
 import colors from '../config/colors'
@@ -14,7 +17,10 @@ import { useNavigation } from '@react-navigation/native';
 export function LoginBox () {
     const [loginform, setloginform] = useState({})
     const [isFormValid, setIsFormValid] = useState(false);
+<<<<<<< HEAD
     const [cookie, setCookie, removeCookie] = useCookies(['userId'])
+=======
+>>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
     const navigation = useNavigation()
 
     const checkFormValidity = () => {
@@ -35,8 +41,12 @@ export function LoginBox () {
     const hanndlelogin = async () => {
         const success = await login(loginform.email, loginform.password)
         if (success) {
+<<<<<<< HEAD
             setCookie(success)
             console.log(success)
+=======
+            console.log("Logging")
+>>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
             navigation.navigate(Dashboard)
             console.log("moved")
         } else {
