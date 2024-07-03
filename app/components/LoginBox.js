@@ -1,9 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity,TextInput, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
-<<<<<<< HEAD
-import { useCookies } from 'react-cookie';
-=======
->>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
 
 
 import colors from '../config/colors'
