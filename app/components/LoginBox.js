@@ -13,10 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 export function LoginBox () {
     const [loginform, setloginform] = useState({})
     const [isFormValid, setIsFormValid] = useState(false);
-<<<<<<< HEAD
-    const [cookie, setCookie, removeCookie] = useCookies(['userId'])
-=======
->>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
     const navigation = useNavigation()
 
     const checkFormValidity = () => {
@@ -27,7 +23,6 @@ export function LoginBox () {
         }
     };
     const handleInputChange = (key, value) => {
-        console.log(loginform)
         setloginform({ ...loginform, [key]: value });
         try {
             checkFormValidity()
@@ -37,12 +32,7 @@ export function LoginBox () {
     const hanndlelogin = async () => {
         const success = await login(loginform.email, loginform.password)
         if (success) {
-<<<<<<< HEAD
-            setCookie(success)
-            console.log(success)
-=======
             console.log("Logging")
->>>>>>> 007b9c05532d9a7be51dce005f9066ac52dbaa73
             navigation.navigate(Dashboard)
             console.log("moved")
         } else {

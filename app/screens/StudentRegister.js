@@ -16,7 +16,7 @@ function StudentRegister({prop,navigation}) {
     const [regUser, setRegUser] = useState({});
 
     useEffect(() => {
-        axios.get(`${BASE_URL}/questions/`)
+        axios.get(`${BASE_URL}/api/user/questions/`)
             .then(response => setQuestions(response.data))
             .catch(err => console.error('Error fetching questions:', err))
     },[setQuestions])
