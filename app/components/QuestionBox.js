@@ -1,21 +1,8 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Text, View } from 'react-native';
 import colors from '../config/colors';
 
 export function QuestionBox ({question, img}) {
-    // const [allUserFeedQuestions, setAllUserFeedQuestions] = useState([])
-
-    // const getAllQuestions = ({question}) => {
-    //     try {
-    //         const response = await userFeedQuestions()
-    //         console.log(response)
-    //         setAllUserFeedQuestions(response)
-    //     } catch (err) {
-    //         throw err
-    //     }
-    // } 
-
-    // useEffect(() => {getAllQuestions()},[])
 
     return (
         <View style={{backgroundColor: colors.primaryblue, borderRadius: 15, margin: 10, padding: 10, display: 'flex'}}>

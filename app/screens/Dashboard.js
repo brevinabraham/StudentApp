@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity, ScrollView, StatusBar, FlatList  } from 'react-native';
 
 import { details, logout, userFeedQuestions } from '../config/apiService';
@@ -6,6 +6,7 @@ import loginscreencss from '../config/loginscreencss';
 import colors from '../config/colors'
 
 import { QuestionBox } from '../components/QuestionBox';
+import { AddQuestions } from '../components/AddQuestion';
 import axios from 'axios';
 
 
@@ -14,6 +15,9 @@ function Dashboard ({ navigation }) {
     const [userfname, setUserFname] = useState('UserFirstName')
     const [alldetails, setalldetails] = useState({})
     const [allUserFeedQuestions, setAllUserFeedQuestions] = useState([])
+    const [showAddQuestion, setShowAddQuestion] = useState(false)
+    const dashboardBottomBannerRef = useRef()
+    const [dashboardBottomBannerDims, setDashboardBottomBannerDims] = useState([])
 
     const getAllQuestions = async () => {
         try {
@@ -62,10 +66,20 @@ function Dashboard ({ navigation }) {
             ...prevState, [id]: gotPic.request.responseURL
         }))
     }
+
+    const addQuestionComponent = () => {
+        setShowAddQuestion(!showAddQuestion)
+        setDashboardBottomBannerDims(screen.height -
+            dashboardBottomBannerRef.current.offsetHeight)
+    }
+
     return (
-        <SafeAreaView style = {[{backgroundColor: colors.white, display:'flex', flex: 1,paddingHorizontal:'5%',width:'100%'}]}>
-            <View style = {{flexDirection:'row',flex:0.5, paddingVertical: 5}}>
-                <View style = {{alignSelf:'center'}}>
+        <SafeAreaView id = "dashboard-view"
+            style = {[{backgroundColor: colors.white, display:'flex', flex: 1,paddingHorizontal:'5%',width:'100%'}]}>
+            <View id = "dashboard-top-banner" 
+                style = {{flexDirection:'row',flex:0.5, paddingVertical: 5}}>
+                <View 
+                    style = {{alignSelf:'center'}}>
                     <Text>
                         Hi {userfname},
                     </Text>
@@ -78,7 +92,8 @@ function Dashboard ({ navigation }) {
                     </Text>      
                 </TouchableOpacity>
             </View>
-            <View style = {{backgroundColor:'grey',flex:9, marginVertical: 5, borderRadius: 5}} >
+            <View id = "dashboard-mid-feed-questions"
+                style = {{backgroundColor:'grey',flex:9, marginVertical: 5, borderRadius: 5}} >
                 <FlatList 
                     data={allUserFeedQuestions}
                     key={(item)=>item['id']}
@@ -91,11 +106,15 @@ function Dashboard ({ navigation }) {
                     )}
                     />
             </View>
-            <View style = {{backgroundColor:'blue',flex:0.5}}>
+            <View id = "dashboard-bottom-banner"
+                ref={dashboardBottomBannerRef}
+                onPointerEnter={addQuestionComponent}
+                style = {{backgroundColor:'blue',flex:0.5}}>
                 <View style = {{alignContent:'flex-start' }}>
                     <Text>
                         Hi {userfname},
                     </Text>
+                    {showAddQuestion && <AddQuestions dashboardBottomDims={dashboardBottomBannerDims} />}
                 </View>
             </View>
         </SafeAreaView>
