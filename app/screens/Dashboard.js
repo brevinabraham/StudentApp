@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity, ScrollView, StatusBar, FlatList  } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, StatusBar, FlatList  } from 'react-native';
 
-import { details, logout, userFeedQuestions } from '../config/apiService';
+import { details, logout, userFeedQuestions } from '../config/apiServiceUsers';
 import loginscreencss from '../config/loginscreencss';
 import colors from '../config/colors'
 
@@ -106,17 +106,18 @@ function Dashboard ({ navigation }) {
                     )}
                     />
             </View>
-            <View id = "dashboard-bottom-banner"
-                ref={dashboardBottomBannerRef}
-                onPointerEnter={addQuestionComponent}
-                style = {{backgroundColor:'blue',flex:0.5}}>
-                <View style = {{alignContent:'flex-start' }}>
-                    <Text>
-                        Hi {userfname},
-                    </Text>
-                    {showAddQuestion && <AddQuestions dashboardBottomDims={dashboardBottomBannerDims} />}
-                </View>
-            </View>
+            {showAddQuestion && <AddQuestions dashboardBottomDims={dashboardBottomBannerDims} />}
+            <TouchableOpacity onPress={()=>addQuestionComponent()} 
+                        style = {{backgroundColor:'blue',flex:0.5}} ref={dashboardBottomBannerRef}>
+                    <View id = "dashboard-bottom-banner">
+                        <View style = {{alignContent:'flex-start' }}>
+                            <Text>
+                                Hi {userfname},
+                            </Text>
+                        </View>
+                    </View>
+            </TouchableOpacity>
+            
         </SafeAreaView>
 
             

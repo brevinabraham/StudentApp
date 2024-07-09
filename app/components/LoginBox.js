@@ -3,7 +3,7 @@ import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity,TextInput, 
 
 
 import colors from '../config/colors'
-import { login } from '../config/apiService';
+import { login } from '../config/apiServiceUsers';
 import Dashboard from '../screens/Dashboard';
 import { StyleSheet,  } from 'react-native-web';
 import { useNavigation } from '@react-navigation/native';

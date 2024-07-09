@@ -5,7 +5,7 @@ import colors from '../config/colors'
 
 import { LoginBox } from '../components/LoginBox';
 import Dashboard from './Dashboard';
-import { isLoggedIn } from '../config/apiService';
+import { isLoggedIn } from '../config/apiServiceUsers';
 
 
 function LoginScreen({prop,navigation}) {
