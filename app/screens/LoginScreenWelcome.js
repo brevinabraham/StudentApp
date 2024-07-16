@@ -53,23 +53,22 @@ function LoginScreen({prop,navigation}) {
             </View>
             {!showLoginForm &&
             <View style = {[loginscreencss.LoginContainersEmptyColor,
-                {flexDirection: "row"}]}>
+                {flexDirection: "row", display: 'flex'}]}>
                 <TouchableOpacity onPress={() => navigation.navigate('StudentRegister')}
                     style = {[loginscreencss.LoginContainersEmptyColor,
                     {flex:1, backgroundColor: colors.primarylightpurple}]}>
-                    <Text style = {[loginscreencss.EmptyBackgroundTextTitle, 
-                        {color: colors.white}]}>
-                        Student
+                    <Text style = {{color: colors.white, padding: 20, fontSize: 30, fontWeight:'bold'}}>
+                        Register
                     </Text>      
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('TeacherRegister')}
+                {/* <TouchableOpacity onPress={() => navigation.navigate('TeacherRegister')}
                     style = {[loginscreencss.LoginContainersEmptyColor,
                     {flex:1, backgroundColor: colors.primaryblue}]}>
                     <Text style = {[loginscreencss.EmptyBackgroundTextTitle, 
                         {color: colors.white}]}>
                         Teacher
                     </Text>      
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>}
             
             {showLoginForm && 
@@ -77,7 +76,7 @@ function LoginScreen({prop,navigation}) {
             }
            
             <TouchableOpacity style = {[loginscreencss.LoginContainersEmptyColor, 
-                {flex: 0.5}]} onPress={() => {setShowLoginForm(!showLoginForm); setLoginBackText("Back")}}>
+                {flex: 0.5}]} onPress={() => {setShowLoginForm(!showLoginForm); (showLoginForm === true ?setLoginBackText("login"):setLoginBackText("back"))}}>
                 <Text style = {[loginscreencss.EmptyBackgroundText,{color:colors.black}]}>
                     {loginBackText}
                 </Text>               
