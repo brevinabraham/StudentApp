@@ -8,6 +8,7 @@ import colors from '../config/colors'
 import { QuestionBox } from '../components/QuestionBox';
 import { AddQuestions } from '../components/AddQuestion';
 import axios from 'axios';
+import { SearchBox } from '../components/SearchBox';
 
 function Dashboard({ navigation }) {
     const [userfname, setUserFname] = useState('UserFirstName')
@@ -16,11 +17,15 @@ function Dashboard({ navigation }) {
     const [showAddQuestion, setShowAddQuestion] = useState(false)
     const dashboardBottomBannerRef = useRef()
     const [dashboardBottomBannerDims, setDashboardBottomBannerDims] = useState([])
+    const [editQ, setEditQ] = useState({})
+    const [openQuestionId, setOpenQuestionId] = useState(null);
+    const [conversationMode, setConversationMode] = useState(false);
+    const [selectedQConversation, setSelectedQConversation] = useState({})
 
     const getAllQuestions = async () => {
         try {
             const response = await userFeedQuestions()
-            setAllUserFeedQuestions(response.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
+            setAllUserFeedQuestions(response.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)))
             for (let item in response) {
                 await getImgs(response[item]['id'])
             }
@@ -65,7 +70,10 @@ function Dashboard({ navigation }) {
         }))
     }
 
-    const addQuestionComponent = () => {
+    const addQuestionComponent = (editquestion) => {
+        if (editquestion) {
+            setEditQ(editquestion)
+        }
         setShowAddQuestion(!showAddQuestion)
         setDashboardBottomBannerDims(screen.height -
             dashboardBottomBannerRef.current.offsetHeight)
@@ -73,55 +81,85 @@ function Dashboard({ navigation }) {
 
     const handleAddQuestionClose = () => {
         setShowAddQuestion(false);
-        getAllQuestions(); // Optionally refresh questions after adding a new one
+        setEditQ({})
+        getAllQuestions();
+    }
+
+    const handleConversationPress = (item) => {
+        setConversationMode(true);
+        setSelectedQConversation(item)
     }
 
     return (
         <SafeAreaView id="dashboard-view"
-            style={[{ backgroundColor: colors.white, display: 'flex', flex: 1, paddingHorizontal: '5%', width: '100%' }]}>
+            style={[{ backgroundColor: colors.black, display: 'flex', flex: 1, paddingHorizontal: '1%', width: '100%' }]}>
             
             <View id="dashboard-top-banner"
-                style={{ flexDirection: 'row', flex: 0.5, paddingVertical: 5 }}>
+                style={{ flexDirection: 'row', flex: 0.5, paddingVertical: 5, paddingHorizontal: '5%', justifyContent: 'space-between' }}>
                 <View
                     style={{ alignSelf: 'center' }}>
-                    <Text>
+                    <Text style={{color: colors.white}}>
                         Hi {userfname},
                     </Text>
                 </View>
                 <TouchableOpacity onPress={handleLogout}
-                    style={[loginscreencss.LoginContainersEmptyColor,
-                    { backgroundColor: colors.primarylightpurple, justifyContent: "center" }]}>
-                    <Text style={[loginscreencss.EmptyBackgroundTextTitle]}>
+                    style={{ backgroundColor: colors.primarylightpurple, justifyContent: "center", borderRadius: 20 }}>
+                    <Text style={[loginscreencss.EmptyBackgroundTextTitle, {paddingHorizontal: 50}]}>
                         Logout
                     </Text>
                 </TouchableOpacity>
             </View>
             <View id="dashboard-mid-feed-questions"
-                style={{ backgroundColor: 'grey', flex: 9, marginVertical: 5, paddingVertical: 5, borderRadius: 5 }} >
+                style={{ flex: 10, marginVertical: 5, paddingVertical: 5, borderRadius: 5 }} >
+                <SearchBox/>
+                {!conversationMode &&
                 <FlatList
                     data={allUserFeedQuestions}
                     key={(item) => item['id']}
                     onViewableItemsChanged={onViewableItemsChanged}
                     renderItem={({ item }) => (
-                        <View style={{ width: '96%', alignSelf: 'center' }}
+                        <View style={{ width: '100%', paddingHorizontal: '1%', alignSelf: 'center' }}
                             onPointerEnter={() => { getImgs(item['id']); }}>
-                            <QuestionBox question={item} img={getPic[item['id']]} />
+                            <QuestionBox 
+                                question={item} 
+                                img={getPic[item['id']]} 
+                                onClose={getAllQuestions} 
+                                editQuestion={addQuestionComponent}
+                                isOpen={openQuestionId === item.id}
+                                setIsOpen={setOpenQuestionId}
+                                onConversationPress={() => handleConversationPress(item)}
+                                expanded={false}
+                            />
                         </View>
                     )}
-                />
+                />}
+                {conversationMode &&
+                    <View style={{ width: '100%', height: '98%', paddingHorizontal: '1%', alignSelf: 'center' }}>
+                        <QuestionBox 
+                            question={selectedQConversation} 
+                            img={getPic[selectedQConversation['id']]} 
+                            onClose={getAllQuestions} 
+                            editQuestion={addQuestionComponent}
+                            isOpen={openQuestionId === selectedQConversation.id}
+                            setIsOpen={setOpenQuestionId}
+                            onConversationPress={() => setConversationMode(false)}
+                            expanded={true}
+                        />
+                    </View>
+                }
             </View>
-            {showAddQuestion && <AddQuestions dashboardBottomDims={dashboardBottomBannerDims} user_id={userfname} onClose={handleAddQuestionClose} />}
+            {showAddQuestion && <AddQuestions dashboardBottomDims={dashboardBottomBannerDims} user_id={userfname} onClose={handleAddQuestionClose} Edit={editQ}/>}
 
-            <View id="dashboard-bottom-banner" style={{ flex: 0.5, flexDirection: 'row' }} ref={dashboardBottomBannerRef}>
-                <TouchableOpacity onPress={() => {}}  style={{alignItems: 'center', justifyContent: 'center',backgroundColor: 'red', flex:1 }}>   
-                    <View >
+            <View id="dashboard-bottom-banner" style={{ flex: 0.5, flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center'}} ref={dashboardBottomBannerRef}>
+                <TouchableOpacity onPress={() => {}}  style={{alignItems: 'center', justifyContent: 'center',backgroundColor: 'red', flex:1, borderRadius: 20 }}>   
+                    <View  >
                         <Text style={{fontWeight: 'bold'}}>
                             Dasboard
                         </Text>
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => addQuestionComponent()} style={{ backgroundColor: 'blue', flex:1, alignItems: 'center', justifyContent: 'center' }} >     
+                <TouchableOpacity onPress={() => {JSON.stringify(editQ) === '{}' ? addQuestionComponent() : console.log("hi")}} style={{ backgroundColor: JSON.stringify(editQ) === '{}' ? 'blue': colors.grey, flex:1, alignItems: 'center', justifyContent: 'center', borderRadius: 20 }} >     
                     <View >
                         <Text style={{fontWeight: 'bold'}}>
                             Add Question
@@ -129,7 +167,7 @@ function Dashboard({ navigation }) {
                     </View>
                 </TouchableOpacity>
                 
-                <TouchableOpacity onPress={() => {}} style={{alignItems: 'center', justifyContent: 'center',backgroundColor: 'green', flex:1  }} >     
+                <TouchableOpacity onPress={() => {}} style={{alignItems: 'center', justifyContent: 'center',backgroundColor: 'green', flex:1, borderRadius: 20  }} >     
                     <View >
                         <Text style={{fontWeight: 'bold'}}>
                             My Account

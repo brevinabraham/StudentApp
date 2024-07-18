@@ -4,25 +4,32 @@ import { BlurView } from 'expo-blur';
 import { debounce } from 'lodash';
 import CreatableSelect from 'react-select/creatable';
 import colors from '../config/colors';
-import { retrieveQuestionTemplate, postQuestion } from '../config/apiServiceFeeds';
+import { retrieveQuestionTemplate, postQuestion, editQuestion } from '../config/apiServiceFeeds';
 import { useNavigation } from '@react-navigation/native';
 
-export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
+export function AddQuestions({ dashboardBottomDims, user_id, onClose, Edit }) {
+    const initialPickerItems = {
+        status_id: { items: ['test', 'test2', 'test3'], selected: [] },
+        tags_id: { items: [], selected: [] },
+        topic_id: { items: [], selected: [] },
+        subtopic_id: { items: [], selected: [] },
+    };
+
     const [questionTemplate, setQuestionTemplate] = useState([]);
     const [inputHeights, setInputHeights] = useState({});
-    const [pickerItems, setPickerItems] = useState({});
+    const [pickerItems, setPickerItems] = useState(initialPickerItems);
     const [question, setQuestion] = useState({
-        user_id: user_id,
-        title: '',
-        content: '',
-        status_id: [],
-        tags_id: [],
-        topic_id: [],
-        subtopic_id: [],
-        comments_count: 0
+        user_id: JSON.stringify(Edit) === '{}' ? user_id : Edit.user_id,
+        title: JSON.stringify(Edit) === '{}' ? '' : Edit.title,
+        content: JSON.stringify(Edit) === '{}' ? '' : Edit.content,
+        status_id: JSON.stringify(Edit) === '{}' ? initialPickerItems.status_id.selected : Edit.status_id,
+        tags_id: JSON.stringify(Edit) === '{}' ? initialPickerItems.tags_id.selected : Edit.tags_id,
+        topic_id: JSON.stringify(Edit) === '{}' ? initialPickerItems.topic_id.selected : Edit.topic_id,
+        subtopic_id: JSON.stringify(Edit) === '{}' ? initialPickerItems.subtopic_id.selected : Edit.subtopic_id,
+        comments_count: JSON.stringify(Edit) === '{}' ? 0 : Edit.comments_count,
     });
 
-    const navigation = useNavigation(); // Use the navigation hook
+    const navigation = useNavigation();
 
     const getquestions = async () => {
         const response = await retrieveQuestionTemplate();
@@ -30,13 +37,39 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
     };
 
     const addQuestion = async () => {
-        question["user_id"] = user_id;
-        await postQuestion(question);
-        onClose(); // Call the onClose callback to update the state in Dashboard
+        question['user_id'] = user_id;
+        JSON.stringify(Edit) === '{}' ? '' : question['created_at'] = Edit.created_at;
+        JSON.stringify(Edit) === '{}' ? await postQuestion(question) : await editQuestion(Edit.id, question);
+        onClose();
     };
 
     useEffect(() => {
         getquestions();
+        if (JSON.stringify(Edit) !== '{}') {
+            const updatedPickerItems = { ...initialPickerItems };
+            if (Edit.status_id) {
+                updatedPickerItems.status_id.selected = Edit.status_id;
+            }
+            if (Edit.tags_id) {
+                updatedPickerItems.tags_id = {
+                    items: [...initialPickerItems.tags_id.items, ...Edit.tags_id],
+                    selected: Edit.tags_id
+                };
+            }
+            if (Edit.topic_id) {
+                updatedPickerItems.topic_id = {
+                    items: [...initialPickerItems.topic_id.items, ...Edit.topic_id],
+                    selected: Edit.topic_id
+                };
+            }
+            if (Edit.subtopic_id) {
+                updatedPickerItems.subtopic_id = {
+                    items: [...initialPickerItems.subtopic_id.items, ...Edit.subtopic_id],
+                    selected: Edit.subtopic_id
+                };
+            }
+            setPickerItems(updatedPickerItems);
+        }
     }, []);
 
     const handleContentSizeChangeDebounced = useCallback(
@@ -45,7 +78,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                 ...prevHeights,
                 [id]: newHeight
             }));
-        }, 100),
+        }, 0),
         []
     );
 
@@ -61,7 +94,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
         setPickerItems(prevItems => ({
             ...prevItems,
             [id]: {
-                items: items,
+                items: [...prevItems[id].items, ...items],
                 selected: items
             }
         }));
@@ -83,7 +116,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
     return (
         <BlurView intensity={75}
             style={{
-                height: dashboardBottomDims,
+                height: JSON.stringify(Edit) === '{}' ? dashboardBottomDims : "100%",
                 width: '100%',
                 position: 'absolute',
                 top: 0,
@@ -91,7 +124,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: "1%"
+                zIndex: JSON.stringify(Edit) === '{}' ? 0 : 1
             }}>
             <View style={{ flex: 1 }}>
                 <Text style={{
@@ -100,7 +133,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                     alignItems: 'center',
                     paddingTop: '25%'
                 }}>
-                    Add your question below!
+                    {JSON.stringify(Edit) === '{}' ? "Add your question below!" : "Edit your Question"}
                 </Text>
             </View>
             <View style={{
@@ -145,6 +178,7 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                                         multiline={question.multiline}
                                         onContentSizeChange={(event) => handleContentSizeChange(question.id, event)}
                                         placeholder="Enter text"
+                                        defaultValue={JSON.stringify(Edit) !== '{}' ? Edit[question.question_field] : ''}
                                         onChangeText={(value) => handleInputChange(question.question_field, value)}
                                     />
                                 </View>
@@ -158,35 +192,37 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                                 }}>
                                     <CreatableSelect
                                         isMulti
-                                        onChange={(newValue) => handleNewItemChange(question.id, question.question_field, newValue)}
-                                        options={(pickerItems[question.id]?.items || []).map((item, idx) => ({ value: item, label: item }))}
-                                        value={(pickerItems[question.id]?.selected || []).map(item => ({ value: item, label: item }))}
+                                        onChange={(newValue) => handleNewItemChange(question.question_field, question.question_field, newValue)}
+                                        options={(pickerItems[question.question_field]?.items || []).map(item => ({ value: item, label: item }))}
+                                        value={(pickerItems[question.question_field]?.selected || []).map(item => ({ value: item, label: item }))}
                                         formatCreateLabel={formatCreateLabel}
                                         placeholder="Select or create an option"
                                         styles={{
                                             control: (base, state) => ({
                                                 ...base,
                                                 flex: 1,
-                                                maxwidth: '90%',
+                                                Width: '90%',
                                                 borderRadius: 20,
-                                                backgroundColor: colors.white,
                                                 borderColor: colors.primaryblue,
                                                 borderColor: state.isFocused ? colors.grey : colors.primaryblue,
-                                                margin: 10,
+                                                marginBottom: '80px',
                                             }),
                                             menu: (base) => ({
                                                 ...base,
-                                                marginTop: 0,
-                                                marginLeft: '5%',
-                                                overflow: 'hidden',
+                                                flex: 1,
+                                                marginTop: '-80px',
+                                                overflow: 'auto',
+                                                Width: '90%',
                                                 borderRadius: 20,
                                                 backgroundColor: colors.white,
                                                 borderColor: colors.primaryblue,
-                                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
                                             }),
                                             menuList: (base) => ({
                                                 ...base,
-                                                padding: 0
+                                                maxHeight: 100, // Adjust as needed
+                                                overflow: 'auto',
+                                                Width: '90%',
                                             }),
                                             option: (base, state) => ({
                                                 ...base,
@@ -220,8 +256,10 @@ export function AddQuestions({ dashboardBottomDims, user_id, onClose }) {
                         </View>
                     ))}
                 </ScrollView>
-                <TouchableOpacity style={{ backgroundColor: colors.green, alignItems: 'center', borderRadius: 20, 
-                margin: '1%', padding: 10, }} onPress={addQuestion}>
+                <TouchableOpacity style={{
+                    backgroundColor: colors.green, alignItems: 'center', borderRadius: 20,
+                    margin: '1%', padding: 10,
+                }} onPress={addQuestion}>
                     <Text>
                         Submit
                     </Text>

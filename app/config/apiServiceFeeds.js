@@ -13,7 +13,7 @@ export const retrieveQuestionTemplate = async () => {
 
 export const getstatus = async () => {
     try {
-        const response = await axios.get(`${BASE_URL}/api/feeds/questions/`)
+       await axios.get(`${BASE_URL}/api/feeds/questions/`)
     } catch (err) {
         throw err
     }
@@ -22,9 +22,26 @@ export const getstatus = async () => {
 export const postQuestion = async (question) => {
     
     try {
-        const response = await axios.post(`${BASE_URL}/api/feeds/add_your_question`, question)
-        console.log(response.data)
+       await axios.post(`${BASE_URL}/api/feeds/add_your_question`, question)
     } catch (err) {
         throw err;
     }
 }
+
+export const removeQuestion = async (id) => {
+    try {
+       await axios.delete(`${BASE_URL}/api/feeds/questions/rm/`,{params: {id}})
+    } catch (err) {
+        throw err
+    }
+}
+
+export const editQuestion = async (id, question) => {
+    delete question["updated_at"]
+    delete question["comments_count"]    
+    try {
+       await axios.put(`${BASE_URL}/api/feeds/questions/edit/?id=${id}`, {...question});
+    } catch (err) {
+        throw err;
+    }
+};
