@@ -7,7 +7,7 @@ import colors from '../config/colors'
 import loginScreenCSS from '../config/loginscreencss';
 
 registerTranslation('en-GB', enGB)
-const BASE_URL = 'http://127.0.0.1:8000'
+const BASE_URL = 'http://192.168.0.14:8000'
 function StudentRegister({prop,navigation}) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const translationYvalue = useRef(new Animated.Value(0)).current

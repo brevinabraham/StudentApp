@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, StatusBar, FlatList } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, StatusBar, FlatList, Dimensions  } from 'react-native';
 
 import { details, logout, userFeedQuestions } from '../config/apiServiceUsers';
 import loginscreencss from '../config/loginscreencss';
@@ -21,6 +21,7 @@ function Dashboard({ navigation }) {
     const [openQuestionId, setOpenQuestionId] = useState(null);
     const [conversationMode, setConversationMode] = useState(false);
     const [selectedQConversation, setSelectedQConversation] = useState({})
+    const {height, width} = Dimensions.get('window')
 
     const getAllQuestions = async () => {
         try {
@@ -75,7 +76,7 @@ function Dashboard({ navigation }) {
             setEditQ(editquestion)
         }
         setShowAddQuestion(!showAddQuestion)
-        setDashboardBottomBannerDims(screen.height -
+        setDashboardBottomBannerDims(height -
             dashboardBottomBannerRef.current.offsetHeight)
     }
 
@@ -134,7 +135,7 @@ function Dashboard({ navigation }) {
                     )}
                 />}
                 {conversationMode &&
-                    <View style={{ width: '100%', height: '98%', paddingHorizontal: '1%', alignSelf: 'center' }}>
+                    <View style={{ width: '100%', height: '95%', paddingHorizontal: '1%', alignSelf: 'center' }}>
                         <QuestionBox 
                             question={selectedQConversation} 
                             img={getPic[selectedQConversation['id']]} 
