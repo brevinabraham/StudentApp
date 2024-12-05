@@ -1,10 +1,33 @@
-import React from 'react';
-import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity } from 'react-native';
-
+import React, {useState, useEffect} from 'react';
+import { View, Text, SafeAreaView, ImageBackground, TouchableOpacity,TextInput, KeyboardAvoidingView } from 'react-native';
 import loginscreencss from '../config/loginscreencss';
 import colors from '../config/colors'
 
+import { LoginBox } from '../components/LoginBox';
+import Dashboard from './Dashboard';
+import { isLoggedIn } from '../config/apiServiceUsers';
+
+
 function LoginScreen({prop,navigation}) {
+    const [showLoginForm, setShowLoginForm] = useState(false)
+    const [loginBackText, setLoginBackText] = useState("login")
+
+    useEffect(() => {
+        checkAuthStatus();
+    }, []);
+
+
+    const checkAuthStatus = async () => {
+        try {
+            const signedIn = await isLoggedIn();
+            if (signedIn) {
+                navigation.navigate(Dashboard)
+            } 
+        } catch (error) {
+            console.error('Error checking authentication status:', error);
+        }
+    };
+
     return (
         <SafeAreaView style = {[loginscreencss.LoginBackground, {backgroundColor: colors.white}]}>
             <View style = {loginscreencss.LoginContainersEmptyColor}>
@@ -22,38 +45,44 @@ function LoginScreen({prop,navigation}) {
                 {flex: 5, backgroundColor: colors.white}]}>
                 <ImageBackground 
                     style = {{
-                        width: "100%", height: "100%", alignContent: "center",paddingTop: '5%', paddingBottom: '5%'
+                        width: "100%", height: "100%", alignContent: "center"
+                        ,paddingTop: '5%', paddingBottom: '5%'
                     }}
                     source = {require('../assets/WelcomeMainPicture.jpg')}>
                 </ImageBackground>            
             </View>
+            {!showLoginForm &&
             <View style = {[loginscreencss.LoginContainersEmptyColor,
-                {flexDirection: "row", gap: '5%'}]}>
+                {flexDirection: "row", display: 'flex'}]}>
                 <TouchableOpacity onPress={() => navigation.navigate('StudentRegister')}
                     style = {[loginscreencss.LoginContainersEmptyColor,
                     {flex:1, backgroundColor: colors.primarylightpurple}]}>
-                    <Text style = {[loginscreencss.EmptyBackgroundTextTitle, 
-                        {color: colors.white}]}>
-                        Student
+                    <Text style = {{color: colors.white, padding: 20, fontSize: 30, fontWeight:'bold'}}>
+                        Register
                     </Text>      
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('TeacherRegister')}
+                {/* <TouchableOpacity onPress={() => navigation.navigate('TeacherRegister')}
                     style = {[loginscreencss.LoginContainersEmptyColor,
                     {flex:1, backgroundColor: colors.primaryblue}]}>
                     <Text style = {[loginscreencss.EmptyBackgroundTextTitle, 
                         {color: colors.white}]}>
                         Teacher
                     </Text>      
-                </TouchableOpacity>
-            </View>
-
+                </TouchableOpacity> */}
+            </View>}
+            
+            {showLoginForm && 
+                <LoginBox/>
+            }
+           
             <TouchableOpacity style = {[loginscreencss.LoginContainersEmptyColor, 
-                {flex: 0.5}]}>
+                {flex: 0.5}]} onPress={() => {setShowLoginForm(!showLoginForm); (showLoginForm === true ?setLoginBackText("login"):setLoginBackText("back"))}}>
                 <Text style = {[loginscreencss.EmptyBackgroundText,{color:colors.black}]}>
-                    login
+                    {loginBackText}
                 </Text>               
             </TouchableOpacity>
-            <View style = {[loginscreencss.LoginContainersEmptyColor]}>
+            <TouchableOpacity style = {[loginscreencss.LoginContainersEmptyColor]}
+                onPress={() => {console.log("needhelp pressed")}}>
                 <ImageBackground style = {{width: '100%', height: '100%', borderRadius: 55, overflow: 'hidden'}}
                     source = {require('../assets/WelcomeMainBottomBar.jpg')}>
                 <Text style = {[loginscreencss.EmptyBackgroundText,
@@ -62,7 +91,7 @@ function LoginScreen({prop,navigation}) {
                 </Text>             
                 
                 </ImageBackground>   
-            </View>
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
